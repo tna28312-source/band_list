@@ -45,7 +45,16 @@
 
     <div class="page-header">
       <h1 class="page-title">図面一覧</h1>
-      <a href="{{ url_for('main.photo_upload') }}" class="btn-photo">写真アップロードへ</a>
+      {% set cart = session.get('delivery_cart', []) %}
+      {% if cart %}
+        <a href="{{ url_for('main.photo_upload') }}" class="btn-photo">
+          写真アップロードへ（{{ cart|length }}件）
+        </a>
+      {% else %}
+        <span class="btn-photo btn-photo--disabled" title="納品登録ボタンを押してから使用してください">
+          写真アップロードへ
+        </span>
+      {% endif %}
     </div>
 
     <a href="{{ url_for('main.drawing_new') }}" class="btn-new">＋ 新規登録</a>
