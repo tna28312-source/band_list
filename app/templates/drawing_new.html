@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新規登録 — バンド発注リスト（仮）</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/drawing_list.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/drawing_new.css') }}">
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <a class="logo" href="{{ url_for('main.drawing_list') }}">
+        <div class="logo-icon">◇</div>
+        <span class="logo-text">バンド発注リスト（仮）</span>
+      </a>
+
+      <nav>
+        <a class="nav-item active" href="{{ url_for('main.drawing_list') }}">
+          <span class="nav-icon">⊞</span> 図面一覧
+        </a>
+        <a class="nav-item" href="#">マスタ管理</a>
+        <a class="nav-item" href="#"><span class="nav-icon">⚙</span> 設定</a>
+      </nav>
+
+      <div class="header-right">
+        <button class="bell-btn">🔔</button>
+        <div class="user-chip">
+          <div class="user-info">
+            <div class="user-name">佐藤 健太</div>
+            <div class="user-role">管理者</div>
+          </div>
+          <div class="avatar">👤</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb">
+      <a href="{{ url_for('main.drawing_list') }}">ホーム</a>
+      <span>›</span>
+      <a href="{{ url_for('main.drawing_list') }}">図面一覧</a>
+      <span>›</span>
+      <span>新規登録</span>
+    </div>
+
+    <div class="page-header">
+      <h1 class="page-title">新規登録</h1>
+    </div>
+
+    <div class="card form-card">
+
+      {# エラーメッセージ表示 #}
+      {% if error %}
+      <div class="form-error" style="margin-bottom:16px; font-size:14px;">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('main.drawing_new') }}">
+
+        <div class="form-grid">
+
+          <!-- 工事番号 -->
+          <div class="form-group">
+            <label class="form-label" for="project_no">
+              工事番号
+              <span class="form-required">必須</span>
+            </label>
+            <input
+              type="text"
+              id="project_no"
+              name="project_no"
+              class="form-input"
+              placeholder="例）S1000"
+              maxlength="20"
+              value="{{ form_data.project_no if form_data else '' }}"
+              required
+            >
+            <div class="form-error" id="err-projectNo"></div>
+          </div>
+
+          <!-- 図面番号 -->
+          <div class="form-group">
+            <label class="form-label" for="drawing_no">
+              図面番号
+              <span class="form-required">必須</span>
+            </label>
+            <input
+              type="text"
+              id="drawing_no"
+              name="drawing_no"
+              class="form-input"
+              placeholder="例）PB3-10"
+              maxlength="30"
+              value="{{ form_data.drawing_no if form_data else '' }}"
+              required
+            >
+            <div class="form-error" id="err-drawingNo"></div>
+          </div>
+
+          <!-- 発注先 -->
+          <div class="form-group form-group--full">
+            <label class="form-label" for="vendor">
+              発注先
+              <span class="form-required">必須</span>
+            </label>
+            <input
+              type="text"
+              id="vendor"
+              name="vendor"
+              class="form-input"
+              placeholder="例）○○株式会社"
+              maxlength="100"
+              value="{{ form_data.vendor if form_data else '' }}"
+              required
+            >
+            <div class="form-error" id="err-vendor"></div>
+          </div>
+
+          <!-- 発注日 -->
+          <div class="form-group">
+            <label class="form-label" for="order_date">
+              発注日
+              <span class="form-required">必須</span>
+            </label>
+            <input
+              type="text"
+              id="order_date"
+              name="order_date"
+              class="form-input"
+              placeholder="例）2026/2/10"
+              value="{{ form_data.order_date if form_data else '' }}"
+              required
+            >
+            <div class="form-error" id="err-orderDate"></div>
+          </div>
+
+          <!-- 納期 -->
+          <div class="form-group">
+            <label class="form-label" for="due_date">
+              納期
+              <span class="form-required">必須</span>
+            </label>
+            <input
+              type="text"
+              id="due_date"
+              name="due_date"
+              class="form-input"
+              placeholder="例）2026/2/10"
+              value="{{ form_data.due_date if form_data else '' }}"
+              required
+            >
+            <div class="form-error" id="err-dueDate"></div>
+          </div>
+
+        </div>
+
+        <!-- ボタン -->
+        <div class="form-actions">
+          <a href="{{ url_for('main.drawing_list') }}" class="btn-cancel">キャンセル</a>
+          <button type="submit" class="btn-register">登録する</button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    © 2024 BLUEPRINT PRO MANAGEMENT SYSTEM. ALL RIGHTS RESERVED.
+  </footer>
+
+</body>
+</html>

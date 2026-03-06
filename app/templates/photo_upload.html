@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>写真アップロード — バンド発注リスト（仮）</title>
+  <link rel="stylesheet" href="../static/css/drawing_list.css">
+  <link rel="stylesheet" href="../static/css/photo_upload.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <a class="logo" href="#">
+        <div class="logo-icon">◇</div>
+        <span class="logo-text">バンド発注リスト（仮）</span>
+      </a>
+
+      <nav>
+        <a class="nav-item" href="drawing_list.html">
+          <span class="nav-icon">⊞</span> 図面一覧
+        </a>
+        <a class="nav-item" href="#">
+          マスタ管理
+        </a>
+        <a class="nav-item" href="#">
+          <span class="nav-icon">⚙</span> 設定
+        </a>
+      </nav>
+
+      <div class="header-right">
+        <button class="bell-btn">🔔</button>
+        <div class="user-chip">
+          <div class="user-info">
+            <div class="user-name">佐藤 健太</div>
+            <div class="user-role">管理者</div>
+          </div>
+          <div class="avatar">👤</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb">
+      <a href="drawing_list.html">ホーム</a>
+      <span>›</span>
+      <a href="drawing_list.html">図面一覧</a>
+      <span>›</span>
+      <span>写真アップロード</span>
+    </div>
+
+    <div class="page-header">
+      <h1 class="page-title">写真アップロード</h1>
+      <a href="drawing_list.html" class="btn-back">← 図面一覧へ戻る</a>
+    </div>
+
+    <!-- 図面選択テーブル -->
+    <div class="card" style="margin-bottom: 28px;">
+      <table>
+        <thead>
+          <tr>
+            <th>工事番号</th>
+            <th>図面番号</th>
+            <th>発注先</th>
+            <th>発注日</th>
+            <th>納期</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="selectable-row" onclick="selectRow(this, 'PB3-10')">
+            <td class="td-project">S1000</td>
+            <td class="td-drawing">PB3-10</td>
+            <td class="td-vendor">○○株式会社</td>
+            <td>2026/1/20</td>
+            <td>2026/2/10</td>
+          </tr>
+          <tr class="selectable-row" onclick="selectRow(this, 'PB3-20')">
+            <td class="td-project">S1000</td>
+            <td class="td-drawing">PB3-20</td>
+            <td class="td-vendor">○○株式会社</td>
+            <td>2026/1/20</td>
+            <td>2026/2/10</td>
+          </tr>
+          <tr class="selectable-row" onclick="selectRow(this, 'PB3-30')">
+            <td class="td-project">S1000</td>
+            <td class="td-drawing">PB3-30</td>
+            <td class="td-vendor">○○株式会社</td>
+            <td>2026/2/10</td>
+            <td>2026/2/10</td>
+          </tr>
+          <tr class="selectable-row" onclick="selectRow(this, 'PB3-40')">
+            <td class="td-project">S1000</td>
+            <td class="td-drawing">PB3-40</td>
+            <td class="td-vendor">○○株式会社</td>
+            <td>2026/1/20</td>
+            <td>2026/2/10</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- アップロードエリア -->
+    <div class="card upload-card">
+      <div class="upload-section-title">写真アップロード：</div>
+
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">📷</div>
+        <div class="upload-text">ファイルをドラッグ＆ドロップ</div>
+        <div class="upload-sub">または</div>
+        <label class="btn-file-select" for="fileInput">ファイルを選択</label>
+        <input type="file" id="fileInput" accept="image/*" multiple style="display:none;" onchange="handleFiles(this.files)">
+        <div class="upload-hint">JPG・PNG・GIF（最大10MB）</div>
+      </div>
+
+      <!-- プレビューエリア -->
+      <div class="preview-area" id="previewArea" style="display:none;">
+        <div class="preview-label">選択中のファイル：</div>
+        <div class="preview-list" id="previewList"></div>
+        <button class="btn-clear" onclick="clearFiles()">✕ クリア</button>
+      </div>
+
+      <div class="upload-actions">
+        <button class="btn-submit" onclick="handleSubmit()">登録する</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    © 2024 BLUEPRINT PRO MANAGEMENT SYSTEM. ALL RIGHTS RESERVED.
+  </footer>
+
+  <script src="../static/js/photo_upload.js"></script>
+</body>
+</html>

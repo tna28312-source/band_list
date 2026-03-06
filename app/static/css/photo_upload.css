@@ -1,0 +1,355 @@
+/* ─── BACK BUTTON ────────────────────────── */
+.btn-back {
+  margin-left: auto;
+  padding: 8px 18px;
+  background: var(--cream);
+  color: var(--orange-deep);
+  border: 1.5px solid var(--orange-warm);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+  text-decoration: none;
+  -webkit-transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-back:hover {
+  background: var(--orange-pale);
+  border-color: var(--orange-mid);
+}
+.btn-back:active {
+  opacity: 0.85;
+}
+
+/* ─── ROW SELECTION ──────────────────────── */
+.selectable-row {
+  cursor: pointer;
+  -webkit-transition: background 0.15s;
+  transition: background 0.15s;
+}
+.selectable-row:hover {
+  background: rgba(250,192,138,0.18);
+}
+.selectable-row.selected {
+  background: rgba(245,146,74,0.18);
+  outline: none;
+}
+.selectable-row.selected td {
+  color: var(--brown-dark);
+}
+.row-radio {
+  accent-color: var(--orange-mid);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* ─── UPLOAD CARD ────────────────────────── */
+.upload-card {
+  padding: 32px 36px 36px;
+}
+
+.upload-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+}
+
+/* ─── UPLOAD AREA ────────────────────────── */
+.upload-area {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  gap: 10px;
+  border: 2px dashed var(--orange-light);
+  border-radius: 12px;
+  background: var(--orange-surface);
+  padding: 48px 32px;
+  -webkit-transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+  /* ドラッグ&ドロップ時のテキスト選択を防ぐ */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.upload-area.drag-over {
+  border-color: var(--orange-mid);
+  background: var(--orange-pale);
+}
+
+.upload-icon {
+  font-size: 40px;
+  line-height: 1;
+  opacity: 0.7;
+}
+.upload-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.upload-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.upload-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.btn-file-select {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-block;
+  padding: 8px 22px;
+  background: -webkit-linear-gradient(135deg, var(--orange-warm), var(--orange-mid));
+  background: linear-gradient(135deg, var(--orange-warm), var(--orange-mid));
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+  cursor: pointer;
+  -webkit-box-shadow: 0 3px 12px rgba(200,90,0,0.25);
+  box-shadow: 0 3px 12px rgba(200,90,0,0.25);
+  -webkit-transition: -webkit-transform 0.15s, -webkit-box-shadow 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-file-select:hover {
+  -webkit-transform: translateY(-1px);
+  transform: translateY(-1px);
+  -webkit-box-shadow: 0 6px 18px rgba(200,90,0,0.35);
+  box-shadow: 0 6px 18px rgba(200,90,0,0.35);
+}
+.btn-file-select:active {
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+  opacity: 0.85;
+}
+
+/* ─── PREVIEW ────────────────────────────── */
+.preview-area {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  background: var(--orange-surface);
+}
+
+.preview-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+.preview-list {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.preview-item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.preview-thumb {
+  width: 80px;
+  height: 80px;
+  -o-object-fit: cover;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  -webkit-box-shadow: 0 2px 8px var(--shadow-warm);
+  box-shadow: 0 2px 8px var(--shadow-warm);
+}
+
+.preview-filename {
+  font-size: 11px;
+  color: var(--text-muted);
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.btn-clear {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 14px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+  cursor: pointer;
+  -webkit-transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-clear:hover {
+  border-color: var(--orange-warm);
+  color: var(--orange-deep);
+}
+
+/* ─── SUBMIT ─────────────────────────────── */
+.upload-actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.btn-submit {
+  padding: 11px 48px;
+  background: -webkit-linear-gradient(135deg, var(--brown-dark), var(--brown-mid));
+  background: linear-gradient(135deg, var(--brown-dark), var(--brown-mid));
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  -webkit-box-shadow: 0 3px 14px rgba(60,30,0,0.28);
+  box-shadow: 0 3px 14px rgba(60,30,0,0.28);
+  -webkit-transition: -webkit-transform 0.15s, -webkit-box-shadow 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-submit:hover {
+  -webkit-transform: translateY(-1px);
+  transform: translateY(-1px);
+  -webkit-box-shadow: 0 6px 20px rgba(60,30,0,0.38);
+  box-shadow: 0 6px 20px rgba(60,30,0,0.38);
+}
+.btn-submit:active {
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+  opacity: 0.85;
+}
+
+/* ─── RESPONSIVE ─────────────────────────── */
+
+/* タブレット */
+@media screen and (max-width: 768px) {
+  .upload-card {
+    padding: 24px 24px 28px;
+  }
+
+  .upload-area {
+    padding: 36px 24px;
+  }
+}
+
+/* スマホ */
+@media screen and (max-width: 480px) {
+  .upload-card {
+    padding: 16px 14px 20px;
+  }
+
+  .upload-area {
+    padding: 28px 16px;
+    border-radius: 10px;
+  }
+
+  .upload-icon {
+    font-size: 32px;
+  }
+
+  .upload-text {
+    font-size: 13.5px;
+    text-align: center;
+  }
+
+  .upload-sub,
+  .upload-hint {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  /* スマホではドラッグ&ドロップ説明を非表示 */
+  .upload-sub {
+    display: none;
+  }
+
+  .btn-file-select {
+    font-size: 13px;
+    padding: 10px 28px;
+  }
+
+  .preview-area {
+    padding: 14px 16px;
+    border-radius: 10px;
+  }
+
+  .preview-list {
+    gap: 10px;
+  }
+
+  .preview-thumb {
+    width: 70px;
+    height: 70px;
+  }
+
+  .preview-filename {
+    max-width: 70px;
+    font-size: 10px;
+  }
+
+  .upload-actions {
+    margin-top: 20px;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 13px;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+  }
+
+  /* テーブル行のラジオボタンをタップしやすく */
+  .row-radio {
+    width: 20px;
+    height: 20px;
+  }
+}
