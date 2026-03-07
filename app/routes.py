@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
+from flask_login import login_required, current_user
 from app import db
 from app.models import Drawing, Photo, Delivery
 from datetime import date, datetime
@@ -16,6 +17,7 @@ def allowed_file(filename):
 
 # ─── 図面一覧 ──────────────────────────────────────
 @main.route("/")
+@login_required
 def drawing_list():
     drawings = Drawing.query.order_by(
         Drawing.project_no.asc(),
@@ -27,6 +29,7 @@ def drawing_list():
 
 # ─── 新規登録 ──────────────────────────────────────
 @main.route("/drawing/new", methods=["GET", "POST"])
+@login_required
 def drawing_new():
     if request.method == "POST":
         # 入力値を取得
@@ -80,6 +83,7 @@ def drawing_new():
 
 # ─── 納品登録（カートに追加） ──────────────────────
 @main.route("/delivery/add/<int:drawing_id>", methods=["POST"])
+@login_required
 def delivery_add(drawing_id):
     """納品登録ボタンを押した drawing_id をセッションに追加する"""
     cart = session.get("delivery_cart", [])
@@ -91,6 +95,7 @@ def delivery_add(drawing_id):
 
 # ─── 納品登録取り消し（カートから削除） ───────────
 @main.route("/delivery/remove", methods=["POST"])
+@login_required
 def delivery_remove():
     """写真アップロード画面でチェックした drawing_id をセッションから削除する"""
     data = request.get_json()
@@ -103,6 +108,7 @@ def delivery_remove():
 
 # ─── 写真アップロード画面 ──────────────────────────
 @main.route("/photo/upload", methods=["GET", "POST"])
+@login_required
 def photo_upload():
     cart = session.get("delivery_cart", [])
     drawings = Drawing.query.filter(Drawing.id.in_(cart)).all() if cart else []
@@ -153,6 +159,7 @@ def photo_upload():
 
 # ─── 写真モーダル用API ─────────────────────────────
 @main.route("/photo/<int:drawing_id>")
+@login_required
 def photo_data(drawing_id):
     """納入日リンクをクリックしたときに写真URLをJSONで返す"""
     delivery = Delivery.query.filter_by(drawing_id=drawing_id).first_or_404()

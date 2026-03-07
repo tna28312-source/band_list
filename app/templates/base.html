@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}バンド発注リスト（仮）{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/drawing_list.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -12,7 +13,6 @@
   <header>
     <div class="header-inner">
       <a class="logo" href="{{ url_for('main.drawing_list') }}">
-        <div class="logo-icon">◇</div>
         <span class="logo-text">バンド発注リスト（仮）</span>
       </a>
 
@@ -20,19 +20,17 @@
         <a class="nav-item {% block nav_drawing_list %}{% endblock %}" href="{{ url_for('main.drawing_list') }}">
           <span class="nav-icon">⊞</span> 図面一覧
         </a>
-        <a class="nav-item" href="#">マスタ管理</a>
-        <a class="nav-item" href="#"><span class="nav-icon">⚙</span> 設定</a>
       </nav>
 
       <div class="header-right">
-        <button class="bell-btn">🔔</button>
         <div class="user-chip">
           <div class="user-info">
-            <div class="user-name">佐藤 健太</div>
-            <div class="user-role">管理者</div>
+            <div class="user-name">{{ current_user.username }}</div>
+            <div class="user-role">{{ current_user.role }}</div>
           </div>
           <div class="avatar">👤</div>
         </div>
+        <a href="{{ url_for('auth.logout') }}" class="btn-logout">ログアウト</a>
       </div>
     </div>
   </header>

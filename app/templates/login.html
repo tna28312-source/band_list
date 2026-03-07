@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン — バンド発注リスト（仮）</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/drawing_list.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body class="auth-body">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="login-logo-text">バンド発注リスト（仮）</span>
+    </div>
+
+    <div class="login-title">ログイン</div>
+
+    {% if error %}
+    <div class="login-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('auth.login') }}">
+      <div class="form-group">
+        <label class="form-label" for="username">ユーザー名</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          class="form-input"
+          placeholder="ユーザー名を入力"
+          value="{{ username if username else '' }}"
+          required
+          autofocus
+        >
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">パスワード</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          placeholder="パスワードを入力"
+          required
+        >
+      </div>
+      <button type="submit" class="btn-login">ログイン</button>
+    </form>
+
+    <div class="login-footer">
+      アカウントをお持ちでない方は
+      <a href="{{ url_for('auth.register') }}">新規登録</a>
+    </div>
+  </div>
+</body>
+</html>
