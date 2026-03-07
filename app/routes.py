@@ -18,8 +18,9 @@ def allowed_file(filename):
 @main.route("/")
 def drawing_list():
     drawings = Drawing.query.order_by(
-        Drawing.drawing_no.asc(),
-        Drawing.project_no.asc()
+        Drawing.project_no.asc(),
+        Drawing.drawing_no.asc()
+        
     ).all()
     return render_template("drawing_list.html", drawings=drawings)
 
@@ -86,6 +87,18 @@ def delivery_add(drawing_id):
         cart.append(drawing_id)
     session["delivery_cart"] = cart
     return redirect(url_for("main.drawing_list"))
+
+
+# ─── 納品登録取り消し（カートから削除） ───────────
+@main.route("/delivery/remove", methods=["POST"])
+def delivery_remove():
+    """写真アップロード画面でチェックした drawing_id をセッションから削除する"""
+    data = request.get_json()
+    remove_ids = [int(i) for i in data.get("ids", [])]
+    cart = session.get("delivery_cart", [])
+    cart = [i for i in cart if i not in remove_ids]
+    session["delivery_cart"] = cart
+    return jsonify({"ok": True, "cart": cart})
 
 
 # ─── 写真アップロード画面 ──────────────────────────

@@ -1,126 +1,104 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>写真アップロード — バンド発注リスト（仮）</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/drawing_list.css') }}">
+{% extends "base.html" %}
+
+{% block title %}写真アップロード — バンド発注リスト（仮）{% endblock %}
+
+{% block extra_css %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/photo_upload.css') }}">
-</head>
-<body>
+{% endblock %}
 
-  <header>
-    <div class="header-inner">
-      <a class="logo" href="{{ url_for('main.drawing_list') }}">
-        <div class="logo-icon">◇</div>
-        <span class="logo-text">バンド発注リスト（仮）</span>
-      </a>
-      <nav>
-        <a class="nav-item" href="{{ url_for('main.drawing_list') }}">
-          <span class="nav-icon">⊞</span> 図面一覧
-        </a>
-        <a class="nav-item" href="#">マスタ管理</a>
-        <a class="nav-item" href="#"><span class="nav-icon">⚙</span> 設定</a>
-      </nav>
-      <div class="header-right">
-        <button class="bell-btn">🔔</button>
-        <div class="user-chip">
-          <div class="user-info">
-            <div class="user-name">佐藤 健太</div>
-            <div class="user-role">管理者</div>
-          </div>
-          <div class="avatar">👤</div>
-        </div>
-      </div>
-    </div>
-  </header>
+{% block content %}
+  <div class="breadcrumb">
+    <a href="{{ url_for('main.drawing_list') }}">ホーム</a>
+    <span>›</span>
+    <a href="{{ url_for('main.drawing_list') }}">図面一覧</a>
+    <span>›</span>
+    <span>写真アップロード</span>
+  </div>
 
-  <main>
-    <div class="breadcrumb">
-      <a href="{{ url_for('main.drawing_list') }}">ホーム</a>
-      <span>›</span>
-      <a href="{{ url_for('main.drawing_list') }}">図面一覧</a>
-      <span>›</span>
-      <span>写真アップロード</span>
-    </div>
+  <div class="page-header">
+    <h1 class="page-title">写真アップロード</h1>
+    <a href="{{ url_for('main.drawing_list') }}" class="btn-back">← 図面一覧へ戻る</a>
+  </div>
 
-    <div class="page-header">
-      <h1 class="page-title">写真アップロード</h1>
-      <a href="{{ url_for('main.drawing_list') }}" class="btn-back">← 図面一覧へ戻る</a>
-    </div>
+  {% if error %}
+  <div class="error-message">{{ error }}</div>
+  {% endif %}
 
-    {% if error %}
-    <div class="error-message">{{ error }}</div>
-    {% endif %}
+  <!-- アップロードフォーム -->
+  <form method="POST" action="{{ url_for('main.photo_upload') }}" enctype="multipart/form-data" id="uploadForm">
 
-    <!-- アップロードフォーム -->
-    <form method="POST" action="{{ url_for('main.photo_upload') }}" enctype="multipart/form-data" id="uploadForm">
+    <!-- 図面確認テーブル -->
+    <div class="card" style="margin-bottom: 28px;">
 
-      <!-- 図面確認テーブル -->
-      <div class="card" style="margin-bottom: 28px;">
-        <div class="upload-section-title" style="padding: 16px 20px 8px;">納品登録する図面：</div>
-        <table>
-          <thead>
-            <tr>
-              <th>工事番号</th>
-              <th>図面番号</th>
-              <th>発注先</th>
-              <th>発注日</th>
-              <th>納期</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for drawing in drawings %}
-            <tr>
-              <input type="hidden" name="drawing_ids" value="{{ drawing.id }}">
-              <td class="td-project">{{ drawing.project_no }}</td>
-              <td class="td-drawing">{{ drawing.drawing_no }}</td>
-              <td class="td-vendor">{{ drawing.vendor }}</td>
-              <td>{{ drawing.order_date.strftime('%Y/%m/%d') if drawing.order_date else '' }}</td>
-              <td>{{ drawing.due_date.strftime('%Y/%m/%d') if drawing.due_date else '' }}</td>
-            </tr>
-            {% else %}
-            <tr>
-              <td colspan="5" style="text-align:center; color:var(--text-muted); padding:32px;">
-                カートが空です。図面一覧から「納品登録」ボタンを押してください。
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <!-- 取り消しボタンエリア -->
+      <div class="cart-header">
+        <button type="button" class="btn-cancel-cart" onclick="cancelSelected()">取り消し</button>
       </div>
 
-      <!-- アップロードエリア -->
-      <div class="card upload-card">
-        <div class="upload-section-title">写真アップロード：</div>
+      <table>
+        <thead>
+          <tr>
+            <th class="th-check">
+              <input type="checkbox" id="checkAll" class="row-checkbox" onclick="toggleAll(this)">
+            </th>
+            <th>工事番号</th>
+            <th>図面番号</th>
+            <th>発注先</th>
+            <th>発注日</th>
+            <th>納期</th>
+          </tr>
+        </thead>
+        <tbody id="cartTableBody">
+          {% for drawing in drawings %}
+          <tr class="cart-row" data-id="{{ drawing.id }}">
+            <td class="td-check">
+              <input type="checkbox" class="row-checkbox item-check" data-id="{{ drawing.id }}">
+            </td>
+            <input type="hidden" name="drawing_ids" value="{{ drawing.id }}">
+            <td class="td-project">{{ drawing.project_no }}</td>
+            <td class="td-drawing">{{ drawing.drawing_no }}</td>
+            <td class="td-vendor">{{ drawing.vendor }}</td>
+            <td>{{ drawing.order_date.strftime('%Y/%m/%d') if drawing.order_date else '' }}</td>
+            <td>{{ drawing.due_date.strftime('%Y/%m/%d') if drawing.due_date else '' }}</td>
+          </tr>
+          {% else %}
+          <tr id="emptyRow">
+            <td colspan="6" style="text-align:center; color:var(--text-muted); padding:32px;">
+              カートが空です。図面一覧から「納品登録」ボタンを押してください。
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-          <div class="upload-icon">📷</div>
-          <div class="upload-text">ファイルをドラッグ＆ドロップ</div>
-          <div class="upload-sub">または</div>
-          <label class="btn-file-select" for="fileInput">ファイルを選択</label>
-          <input type="file" id="fileInput" name="photo" accept="image/*" style="display:none;" onchange="handleFiles(this.files)">
-          <div class="upload-hint">JPG・PNG・GIF（最大10MB）</div>
-        </div>
+    <!-- アップロードエリア -->
+    <div class="card upload-card">
+      <div class="upload-section-title">写真アップロード：</div>
 
-        <div class="preview-area" id="previewArea" style="display:none;">
-          <div class="preview-label">選択中のファイル：</div>
-          <div class="preview-list" id="previewList"></div>
-          <button type="button" class="btn-clear" onclick="clearFiles()">✕ クリア</button>
-        </div>
-
-        <div class="upload-actions">
-          <button type="submit" class="btn-submit" id="submitBtn" {% if not drawings %}disabled{% endif %}>登録する</button>
-        </div>
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">📷</div>
+        <div class="upload-text">ファイルをドラッグ＆ドロップ</div>
+        <div class="upload-sub">または</div>
+        <label class="btn-file-select" for="fileInput">ファイルを選択</label>
+        <input type="file" id="fileInput" name="photo" accept="image/*" style="display:none;" onchange="handleFiles(this.files)">
+        <div class="upload-hint">JPG・PNG・GIF（最大10MB）</div>
       </div>
 
-    </form>
-  </main>
+      <div class="preview-area" id="previewArea" style="display:none;">
+        <div class="preview-label">選択中のファイル：</div>
+        <div class="preview-list" id="previewList"></div>
+        <button type="button" class="btn-clear" onclick="clearFiles()">✕ クリア</button>
+      </div>
 
-  <footer>
-    © 2024 BLUEPRINT PRO MANAGEMENT SYSTEM. ALL RIGHTS RESERVED.
-  </footer>
+      <div class="upload-actions">
+        <button type="submit" class="btn-submit" id="submitBtn" {% if not drawings %}disabled{% endif %}>登録する</button>
+      </div>
+    </div>
 
+  </form>
+{% endblock %}
+
+{% block extra_js %}
   <script src="{{ url_for('static', filename='js/photo_upload.js') }}"></script>
-</body>
-</html>
+{% endblock %}

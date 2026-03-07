@@ -1,3 +1,56 @@
+/* ─── CART HEADER（取り消しボタンエリア） ─── */
+.cart-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: start;   /* end → start */
+  -ms-flex-pack: start;      /* end → start */
+  justify-content: flex-start; /* flex-end → flex-start */
+  padding: 12px 20px 8px;
+}
+
+.btn-cancel-cart {
+  padding: 6px 18px;
+  background: #fff;
+  color: var(--orange-deep);
+  border: 1.5px solid var(--orange-warm);
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+  cursor: pointer;
+  -webkit-transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-cancel-cart:hover {
+  background: var(--orange-pale);
+  border-color: var(--orange-mid);
+}
+.btn-cancel-cart:active {
+  opacity: 0.8;
+}
+
+/* ─── CHECKBOX ───────────────────────────── */
+.th-check,
+.td-check {
+  width: 40px;
+  text-align: center;
+  padding: 0 4px;
+}
+
+.row-checkbox {
+  accent-color: var(--orange-mid);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* チェックされた行をハイライト */
+.cart-row:has(.item-check:checked) {
+  background: rgba(245,146,74,0.12);
+}
+
 /* ─── BACK BUTTON ────────────────────────── */
 .btn-back {
   margin-left: auto;
