@@ -27,6 +27,7 @@ class Drawing(db.Model):
     vendor = db.Column(db.String(200), nullable=False)      # 発注先
     order_date = db.Column(db.Date, nullable=False)         # 発注日
     due_date = db.Column(db.Date, nullable=False)           # 納期
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)  # 論理削除フラグ
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 

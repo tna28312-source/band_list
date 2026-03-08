@@ -1,4 +1,57 @@
-// 納入日リンクをクリックで写真モーダルを開く
+// ─── チェックボックス ────────────────────────────
+function toggleAll(masterCb) {
+  document.querySelectorAll('.item-check').forEach(cb => {
+    cb.checked = masterCb.checked;
+  });
+  updateDeleteBtn();
+}
+
+function onCheckChange() {
+  const allChecks = document.querySelectorAll('.item-check');
+  const checkedCount = document.querySelectorAll('.item-check:checked').length;
+  const masterCb = document.getElementById('checkAll');
+  if (masterCb) {
+    masterCb.checked = checkedCount === allChecks.length && allChecks.length > 0;
+    masterCb.indeterminate = checkedCount > 0 && checkedCount < allChecks.length;
+  }
+  updateDeleteBtn();
+}
+
+function updateDeleteBtn() {
+  const checkedCount = document.querySelectorAll('.item-check:checked').length;
+  const btn = document.getElementById('btnDelete');
+  if (btn) btn.disabled = checkedCount === 0;
+}
+
+// ─── 論理削除 ────────────────────────────────────
+async function deleteSelected() {
+  const checked = document.querySelectorAll('.item-check:checked');
+  if (checked.length === 0) return;
+
+  if (!confirm(`チェックした${checked.length}件を削除しますか？`)) return;
+
+  const ids = Array.from(checked).map(cb => Number(cb.dataset.id));
+
+  const res = await fetch('/drawing/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ids })
+  });
+
+  if ((await res.json()).ok) {
+    ids.forEach(id => {
+      const row = document.querySelector(`.drawing-row[data-id="${id}"]`);
+      if (row) row.remove();
+    });
+    // 全選択チェックをリセット
+    const masterCb = document.getElementById('checkAll');
+    if (masterCb) { masterCb.checked = false; masterCb.indeterminate = false; }
+    updateDeleteBtn();
+  }
+}
+
+// ─── 写真モーダル ─────────────────────────────────
+
 async function openPhotoModal(drawingId, event) {
   event.preventDefault();
 

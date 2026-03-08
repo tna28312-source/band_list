@@ -26,11 +26,15 @@
   </div>
 
   <a href="{{ url_for('main.drawing_new') }}" class="btn-new">＋ 新規登録</a>
+  <button type="button" class="btn-delete" id="btnDelete" onclick="deleteSelected()" disabled>削除</button>
 
   <div class="card">
     <table>
       <thead>
         <tr>
+          <th class="th-check">
+            <input type="checkbox" id="checkAll" class="row-checkbox" onclick="toggleAll(this)">
+          </th>
           <th>工事番号</th>
           <th>図面番号</th>
           <th>発注先</th>
@@ -42,7 +46,10 @@
       </thead>
       <tbody>
         {% for drawing in drawings %}
-        <tr>
+        <tr class="drawing-row" data-id="{{ drawing.id }}">
+          <td class="td-check">
+            <input type="checkbox" class="row-checkbox item-check" data-id="{{ drawing.id }}" onchange="onCheckChange()">
+          </td>
           <td class="td-project">{{ drawing.project_no }}</td>
           <td class="td-drawing">{{ drawing.drawing_no }}</td>
           <td class="td-vendor">{{ drawing.vendor }}</td>
@@ -66,7 +73,7 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="7" style="text-align:center; color:var(--text-muted); padding:32px;">
+          <td colspan="8" style="text-align:center; color:var(--text-muted); padding:32px;">
             データがありません
           </td>
         </tr>
@@ -74,7 +81,7 @@
 
         {# 空行を追加してテーブルの高さを保つ #}
         {% for i in range([3 - drawings|length, 0]|max) %}
-        <tr class="empty-row"><td colspan="7">&nbsp;</td></tr>
+        <tr class="empty-row"><td colspan="8">&nbsp;</td></tr>
         {% endfor %}
       </tbody>
     </table>

@@ -790,3 +790,52 @@ footer {
     padding: 16px 18px;
   }
 }
+
+/* ─── チェックボックス列 ─────────────────────────── */
+.th-check,
+.td-check {
+  width: 40px;
+  text-align: center;
+  padding: 0 4px;
+}
+
+.row-checkbox {
+  accent-color: var(--orange-mid);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.drawing-row:has(.item-check:checked) {
+  background: rgba(245, 146, 74, 0.12);
+}
+
+/* ─── 削除ボタン ─────────────────────────────────── */
+.btn-delete {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 9px 20px;
+  background: #fff;
+  color: #c0392b;
+  border: 1.5px solid #e0a0a0;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #fff0f0;
+  border-color: #c0392b;
+}
+
+.btn-delete:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+

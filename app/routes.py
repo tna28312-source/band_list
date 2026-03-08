@@ -19,10 +19,9 @@ def allowed_file(filename):
 @main.route("/")
 @login_required
 def drawing_list():
-    drawings = Drawing.query.order_by(
+    drawings = Drawing.query.filter_by(is_deleted=False).order_by(
         Drawing.project_no.asc(),
         Drawing.drawing_no.asc()
-        
     ).all()
     return render_template("drawing_list.html", drawings=drawings)
 
@@ -79,6 +78,20 @@ def drawing_new():
         return redirect(url_for("main.drawing_list"))
 
     return render_template("drawing_new.html")
+
+
+# ─── 図面の論理削除 ────────────────────────────────
+@main.route("/drawing/delete", methods=["POST"])
+@login_required
+def drawing_delete():
+    """チェックされた drawing_id を論理削除する"""
+    data = request.get_json()
+    delete_ids = [int(i) for i in data.get("ids", [])]
+    Drawing.query.filter(Drawing.id.in_(delete_ids)).update(
+        {"is_deleted": True}, synchronize_session=False
+    )
+    db.session.commit()
+    return jsonify({"ok": True})
 
 
 # ─── 納品登録（カートに追加） ──────────────────────
