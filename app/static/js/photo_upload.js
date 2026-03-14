@@ -117,6 +117,7 @@ function handleFiles(files) {
 
 function clearFiles() {
   document.getElementById('fileInput').value = '';
+  document.getElementById('cameraInput').value = '';
   document.getElementById('previewArea').style.display = 'none';
   document.getElementById('uploadArea').style.display = 'flex';
 }

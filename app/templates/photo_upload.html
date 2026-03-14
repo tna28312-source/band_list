@@ -80,8 +80,12 @@
         <div class="upload-icon">📷</div>
         <div class="upload-text">ファイルをドラッグ＆ドロップ</div>
         <div class="upload-sub">または</div>
-        <label class="btn-file-select" for="fileInput" onclick="event.stopPropagation()">ファイルを選択</label>
+        <div class="upload-btn-group" onclick="event.stopPropagation()">
+          <label class="btn-file-select" for="fileInput">ファイルを選択</label>
+          <label class="btn-camera" for="cameraInput">📸 カメラで撮影</label>
+        </div>
         <input type="file" id="fileInput" name="photo" accept="image/*" style="display:none;" onchange="handleFiles(this.files)">
+        <input type="file" id="cameraInput" name="photo" accept="image/*" capture="environment" style="display:none;" onchange="handleFiles(this.files)">
         <div class="upload-hint">JPG・PNG・GIF（最大10MB）</div>
       </div>
 

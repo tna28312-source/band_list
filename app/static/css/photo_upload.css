@@ -198,6 +198,58 @@
   opacity: 0.85;
 }
 
+/* ─── UPLOAD BTN GROUP ───────────────────── */
+.upload-btn-group {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  gap: 12px;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+/* ─── CAMERA BUTTON ──────────────────────── */
+.btn-camera {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-block;
+  padding: 8px 22px;
+  background: -webkit-linear-gradient(135deg, #4a9e6b, #2e7d52);
+  background: linear-gradient(135deg, #4a9e6b, #2e7d52);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+  cursor: pointer;
+  -webkit-box-shadow: 0 3px 12px rgba(0,100,50,0.25);
+  box-shadow: 0 3px 12px rgba(0,100,50,0.25);
+  -webkit-transition: -webkit-transform 0.15s, -webkit-box-shadow 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-camera:hover {
+  -webkit-transform: translateY(-1px);
+  transform: translateY(-1px);
+  -webkit-box-shadow: 0 6px 18px rgba(0,100,50,0.35);
+  box-shadow: 0 6px 18px rgba(0,100,50,0.35);
+}
+.btn-camera:active {
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+  opacity: 0.85;
+}
+
 /* ─── PREVIEW ────────────────────────────── */
 .preview-area {
   border: 1px solid var(--border);
