@@ -20,6 +20,9 @@
         <a class="nav-item {% block nav_drawing_list %}{% endblock %}" href="{{ url_for('main.drawing_list') }}">
           <span class="nav-icon">⊞</span> 図面一覧
         </a>
+        <a class="nav-item {% block nav_vendor_list %}{% endblock %}" href="{{ url_for('main.vendor_list') }}">
+          <span class="nav-icon">🏢</span> 発注先マスタ管理
+        </a>
       </nav>
 
       <div class="header-right">

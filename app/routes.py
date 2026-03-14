@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
 from flask_login import login_required, current_user
 from app import db
-from app.models import Drawing, Photo, Delivery
+from app.models import Drawing, Photo, Delivery, Vendor
 from datetime import date, datetime
-import os, uuid
+import os, uuid, io
 from werkzeug.utils import secure_filename
+import openpyxl
 
 main = Blueprint("main", __name__)
 
@@ -94,6 +95,104 @@ def drawing_delete():
     return jsonify({"ok": True})
 
 
+# ─── Excel取り込み ────────────────────────────────
+@main.route("/drawing/import", methods=["GET", "POST"])
+@login_required
+def drawing_import():
+    """ExcelファイルからDrawingを一括登録する"""
+
+    # ヘッダー行と取り込みカラムの定義
+    # キー: Excelヘッダー名, 値: Drawingの属性名
+    COLUMN_MAP = {
+        "工事番号": "project_no",
+        "図面番号": "drawing_no",
+    }
+    # Drawing登録に必須だが Excel にない項目のデフォルト値
+    DEFAULTS = {
+        "vendor":     "",
+        "order_date": date.today(),
+        "due_date":   date.today(),
+    }
+
+    if request.method == "GET":
+        return render_template("drawing_import.html")
+
+    # ── POST: ファイルを受け取って処理 ──────────────
+    file = request.files.get("excel_file")
+    if not file or not file.filename.endswith((".xlsx", ".xls")):
+        return render_template("drawing_import.html",
+                               error="Excelファイル（.xlsx / .xls）を選択してください。")
+
+    try:
+        wb = openpyxl.load_workbook(io.BytesIO(file.read()), data_only=True)
+        ws = wb.active  # 先頭シートを対象
+
+        # 1行目をヘッダーとして読み込む
+        headers = [str(cell.value).strip() if cell.value is not None else ""
+                   for cell in ws[1]]
+
+        # COLUMN_MAP のうちファイルに存在するものだけ使う
+        col_index = {}  # {"project_no": 0, "drawing_no": 1, ...}
+        for excel_col, model_attr in COLUMN_MAP.items():
+            if excel_col in headers:
+                col_index[model_attr] = headers.index(excel_col)
+
+        if not col_index:
+            return render_template("drawing_import.html",
+                                   error="「工事番号」「図面番号」いずれのヘッダーも見つかりませんでした。"
+                                         "1行目にヘッダーが記載されているか確認してください。")
+
+        imported = 0
+        skipped  = 0
+        errors   = []
+
+        for row_num, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+            # 全セルが空の行はスキップ
+            if all(v is None or str(v).strip() == "" for v in row):
+                continue
+
+            project_no = str(row[col_index["project_no"]]).strip() \
+                         if "project_no" in col_index else ""
+            drawing_no = str(row[col_index["drawing_no"]]).strip() \
+                         if "drawing_no" in col_index else ""
+
+            # どちらも空ならスキップ
+            if not project_no and not drawing_no:
+                skipped += 1
+                continue
+
+            # 既に同じ project_no + drawing_no が存在すればスキップ
+            exists = Drawing.query.filter_by(
+                project_no=project_no,
+                drawing_no=drawing_no,
+                is_deleted=False,
+            ).first()
+            if exists:
+                skipped += 1
+                continue
+
+            drawing = Drawing(
+                project_no = project_no,
+                drawing_no = drawing_no,
+                vendor     = DEFAULTS["vendor"],
+                order_date = DEFAULTS["order_date"],
+                due_date   = DEFAULTS["due_date"],
+                created_by = current_user.id,
+            )
+            db.session.add(drawing)
+            imported += 1
+
+        db.session.commit()
+
+        return render_template("drawing_import.html",
+                               result={"imported": imported, "skipped": skipped})
+
+    except Exception as e:
+        db.session.rollback()
+        return render_template("drawing_import.html",
+                               error=f"取り込み中にエラーが発生しました: {str(e)}")
+
+
 # ─── 納品登録（カートに追加） ──────────────────────
 @main.route("/delivery/add/<int:drawing_id>", methods=["POST"])
 @login_required
@@ -180,3 +279,57 @@ def photo_data(drawing_id):
         "photo_url": url_for("static", filename=f"uploads/{delivery.photo.filename}"),
         "delivered_at": delivery.delivered_at.strftime("%Y/%m/%d"),
     })
+
+
+# ─── 発注先マスタ一覧 ──────────────────────────────
+@main.route("/vendor")
+@login_required
+def vendor_list():
+    vendors = Vendor.query.filter_by(is_deleted=False).order_by(
+        Vendor.short_name.asc()
+    ).all()
+    return render_template("vendor_list.html", vendors=vendors)
+
+
+# ─── 発注先マスタ新規登録 ──────────────────────────
+@main.route("/vendor/new", methods=["GET", "POST"])
+@login_required
+def vendor_new():
+    if request.method == "POST":
+        name       = request.form.get("name", "").strip()
+        short_name = request.form.get("short_name", "").strip()
+
+        error = None
+        if not name:
+            error = "会社名を入力してください。"
+        elif not short_name:
+            error = "略称を入力してください。"
+
+        if error:
+            form_data = {"name": name, "short_name": short_name}
+            return render_template("vendor_new.html", error=error, form_data=form_data)
+
+        vendor = Vendor(
+            name=name,
+            short_name=short_name,
+            created_by=current_user.id,
+        )
+        db.session.add(vendor)
+        db.session.commit()
+        return redirect(url_for("main.vendor_list"))
+
+    return render_template("vendor_new.html")
+
+
+# ─── 発注先マスタ論理削除 ──────────────────────────
+@main.route("/vendor/delete", methods=["POST"])
+@login_required
+def vendor_delete():
+    """チェックされた vendor_id を論理削除する"""
+    data = request.get_json()
+    delete_ids = [int(i) for i in data.get("ids", [])]
+    Vendor.query.filter(Vendor.id.in_(delete_ids)).update(
+        {"is_deleted": True}, synchronize_session=False
+    )
+    db.session.commit()
+    return jsonify({"ok": True})

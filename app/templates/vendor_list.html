@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}発注先マスタ一覧 | 納品把握システム{% endblock %}
+{% block nav_vendor_list %}active{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+  <a href="{{ url_for('main.drawing_list') }}">図面一覧</a>
+  <span>›</span>
+  <span>発注先マスタ一覧</span>
+</div>
+
+<div class="page-header">
+  <h1 class="page-title">発注先マスタ一覧</h1>
+</div>
+
+<div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+  <a href="{{ url_for('main.vendor_new') }}" class="btn-new">＋ 新規登録</a>
+  <button id="btn-delete" class="btn-delete" disabled>🗑 削除</button>
+</div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th class="th-check"><input type="checkbox" id="check-all" class="row-checkbox"></th>
+        <th>略称</th>
+        <th>会社名</th>
+        <th>登録日時</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in vendors %}
+      <tr class="drawing-row">
+        <td class="td-check">
+          <input type="checkbox" class="row-checkbox item-check" value="{{ v.id }}">
+        </td>
+        <td>{{ v.short_name }}</td>
+        <td>{{ v.name }}</td>
+        <td>{{ v.created_at.strftime("%Y/%m/%d") }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" style="text-align:center; padding:32px; color:var(--text-muted);">
+          登録されている発注先はありません
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const checkAll = document.getElementById('check-all');
+  const btnDelete = document.getElementById('btn-delete');
+
+  function updateDeleteBtn() {
+    const checked = document.querySelectorAll('.item-check:checked');
+    btnDelete.disabled = checked.length === 0;
+  }
+
+  checkAll.addEventListener('change', () => {
+    document.querySelectorAll('.item-check').forEach(cb => cb.checked = checkAll.checked);
+    updateDeleteBtn();
+  });
+
+  document.querySelectorAll('.item-check').forEach(cb => {
+    cb.addEventListener('change', updateDeleteBtn);
+  });
+
+  btnDelete.addEventListener('click', () => {
+    const ids = [...document.querySelectorAll('.item-check:checked')].map(cb => cb.value);
+    if (!ids.length) return;
+    if (!confirm(`${ids.length} 件の発注先を削除しますか？`)) return;
+
+    fetch('{{ url_for("main.vendor_delete") }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    })
+    .then(r => r.json())
+    .then(data => { if (data.ok) location.reload(); });
+  });
+</script>
+{% endblock %}

@@ -18,6 +18,18 @@ class User(UserMixin, db.Model):
     photos = db.relationship("Photo", backref="uploader", lazy=True)
 
 
+class Vendor(db.Model):
+    __tablename__ = "vendors"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)          # 会社名
+    short_name = db.Column(db.String(100), nullable=False)    # 略称
+    email = db.Column(db.String(255), nullable=True)          # メールアドレス（将来用）
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)  # 論理削除フラグ
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+
+
 class Drawing(db.Model):
     __tablename__ = "drawings"
 

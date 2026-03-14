@@ -839,3 +839,15 @@ footer {
   cursor: not-allowed;
 }
 
+
+/* ─── Excel取り込みボタン ────────────────────────── */
+.btn-import {
+  background: var(--cream);
+  color: var(--brown-mid);
+  border-color: var(--orange-light);
+}
+.btn-import:hover {
+  background: var(--orange-pale);
+  border-color: var(--orange-mid);
+  color: var(--orange-deep);
+}

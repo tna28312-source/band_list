@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Excel取り込み | 納品把握システム{% endblock %}
+{% block nav_drawing_list %}active{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+  <a href="{{ url_for('main.drawing_list') }}">図面一覧</a>
+  <span>›</span>
+  <span>Excel取り込み</span>
+</div>
+
+<div class="page-header">
+  <h1 class="page-title">Excel取り込み</h1>
+</div>
+
+<div class="card" style="max-width:600px; padding:32px 36px;">
+
+  {# ── 結果メッセージ ── #}
+  {% if result %}
+  <div style="
+    background: #f0faf0;
+    border: 1px solid #7dc87d;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+  ">
+    <div style="font-size:15px; font-weight:700; color:#2a6e2a; margin-bottom:8px;">✅ 取り込み完了</div>
+    <div style="font-size:13.5px; color:#2a6e2a; line-height:2;">
+      登録件数：<strong>{{ result.imported }} 件</strong><br>
+      スキップ件数：<strong>{{ result.skipped }} 件</strong>
+      <span style="font-size:12px; color:#5a8a5a;">（空行・重複は自動スキップ）</span>
+    </div>
+    <a href="{{ url_for('main.drawing_list') }}"
+       style="display:inline-block; margin-top:16px; padding:8px 20px;
+              background:var(--orange-mid); color:#fff; border-radius:8px;
+              text-decoration:none; font-size:13px; font-weight:600;">
+      図面一覧へ戻る
+    </a>
+  </div>
+  {% endif %}
+
+  {# ── エラーメッセージ ── #}
+  {% if error %}
+  <div style="
+    background:#fff0f0;
+    border:1px solid #e0a0a0;
+    border-radius:8px;
+    padding:12px 16px;
+    margin-bottom:24px;
+    color:#c0392b;
+    font-size:13.5px;
+  ">⚠️ {{ error }}</div>
+  {% endif %}
+
+  {# ── アップロードフォーム ── #}
+  <form method="POST" enctype="multipart/form-data"
+        action="{{ url_for('main.drawing_import') }}"
+        id="importForm">
+
+    <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:24px; line-height:1.8;">
+      1行目をヘッダーとして読み込みます。<br>
+      <strong>「工事番号」「図面番号」</strong>の列が含まれていれば取り込めます。<br>
+      既に登録済みの組み合わせは自動的にスキップされます。
+    </p>
+
+    {# ドロップゾーン #}
+    <div id="dropZone" style="
+      border: 2px dashed var(--orange-light);
+      border-radius: 12px;
+      background: var(--orange-surface);
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 24px;
+    "
+      onclick="document.getElementById('excelFile').click()"
+      ondragover="onDragOver(event)"
+      ondragleave="onDragLeave(event)"
+      ondrop="onDrop(event)"
+    >
+      <div style="font-size:36px; margin-bottom:10px;">📊</div>
+      <div id="dropLabel" style="font-size:14px; color:var(--text-secondary); font-weight:500;">
+        ここにExcelファイルをドロップ<br>
+        <span style="font-size:12.5px; color:var(--text-muted);">または クリックしてファイルを選択</span>
+      </div>
+      <input type="file" id="excelFile" name="excel_file"
+             accept=".xlsx,.xls" style="display:none"
+             onchange="onFileSelect(this)">
+    </div>
+
+    {# 選択ファイル名表示 #}
+    <div id="fileNameDisplay" style="
+      display:none;
+      background: var(--orange-pale);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: var(--brown-mid);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    ">
+      <span>📄</span>
+      <span id="fileNameText"></span>
+    </div>
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <button type="submit" id="btnSubmit" class="btn-photo" style="margin-left:0;" disabled>
+        取り込み実行
+      </button>
+      <a href="{{ url_for('main.drawing_list') }}" class="btn-new" style="margin-bottom:0;">
+        キャンセル
+      </a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const dropZone    = document.getElementById('dropZone');
+  const fileInput   = document.getElementById('excelFile');
+  const btnSubmit   = document.getElementById('btnSubmit');
+  const dropLabel   = document.getElementById('dropLabel');
+  const fileDisplay = document.getElementById('fileNameDisplay');
+  const fileNameTxt = document.getElementById('fileNameText');
+
+  function setFile(file) {
+    if (!file) return;
+    fileNameTxt.textContent = file.name;
+    fileDisplay.style.display = 'flex';
+    btnSubmit.disabled = false;
+    dropLabel.innerHTML = 'ファイルが選択されました。「取り込み実行」を押してください。';
+    dropZone.style.borderColor = 'var(--orange-mid)';
+  }
+
+  function onFileSelect(input) {
+    if (input.files.length > 0) setFile(input.files[0]);
+  }
+
+  function onDragOver(e) {
+    e.preventDefault();
+    dropZone.style.background = 'var(--orange-pale)';
+    dropZone.style.borderColor = 'var(--orange-mid)';
+  }
+
+  function onDragLeave(e) {
+    dropZone.style.background = 'var(--orange-surface)';
+    dropZone.style.borderColor = 'var(--orange-light)';
+  }
+
+  function onDrop(e) {
+    e.preventDefault();
+    onDragLeave(e);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      // DataTransferのファイルをinputにセット
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      fileInput.files = dt.files;
+      setFile(file);
+    }
+  }
+
+  // 取り込み実行中はボタンをローディング表示
+  document.getElementById('importForm').addEventListener('submit', () => {
+    btnSubmit.textContent = '取り込み中...';
+    btnSubmit.disabled = true;
+  });
+</script>
+{% endblock %}
