@@ -8,16 +8,16 @@
 
 {% block content %}
   <div class="breadcrumb">
-    <a href="{{ url_for('main.drawing_list') }}">ホーム</a>
+    <a href="{{ url_for('drawing.drawing_list') }}">ホーム</a>
     <span>›</span>
-    <a href="{{ url_for('main.drawing_list') }}">図面一覧</a>
+    <a href="{{ url_for('drawing.drawing_list') }}">図面一覧</a>
     <span>›</span>
     <span>写真アップロード</span>
   </div>
 
   <div class="page-header">
     <h1 class="page-title">写真アップロード</h1>
-    <a href="{{ url_for('main.drawing_list') }}" class="btn-back">← 図面一覧へ戻る</a>
+    <a href="{{ url_for('drawing.drawing_list') }}" class="btn-back">← 図面一覧へ戻る</a>
   </div>
 
   {% if error %}
@@ -25,7 +25,7 @@
   {% endif %}
 
   <!-- アップロードフォーム -->
-  <form method="POST" action="{{ url_for('main.photo_upload') }}" enctype="multipart/form-data" id="uploadForm">
+  <form method="POST" action="{{ url_for('drawing.photo_upload') }}" enctype="multipart/form-data" id="uploadForm">
 
     <!-- 図面確認テーブル -->
     <div class="card" style="margin-bottom: 28px;">

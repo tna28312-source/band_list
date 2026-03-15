@@ -10,9 +10,9 @@
 
 {% block content %}
   <div class="breadcrumb">
-    <a href="{{ url_for('main.drawing_list') }}">ホーム</a>
+    <a href="{{ url_for('drawing.drawing_list') }}">ホーム</a>
     <span>›</span>
-    <a href="{{ url_for('main.drawing_list') }}">図面一覧</a>
+    <a href="{{ url_for('drawing.drawing_list') }}">図面一覧</a>
     <span>›</span>
     <span>新規登録</span>
   </div>
@@ -28,7 +28,7 @@
     <div class="form-error" style="margin-bottom:16px; font-size:14px;">{{ error }}</div>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('main.drawing_new') }}">
+    <form method="POST" action="{{ url_for('drawing.drawing_new') }}">
 
       <div class="form-grid">
 
@@ -129,7 +129,7 @@
 
       <!-- ボタン -->
       <div class="form-actions">
-        <a href="{{ url_for('main.drawing_list') }}" class="btn-cancel">キャンセル</a>
+        <a href="{{ url_for('drawing.drawing_list') }}" class="btn-cancel">キャンセル</a>
         <button type="submit" class="btn-register">登録する</button>
       </div>
 

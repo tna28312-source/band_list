@@ -41,4 +41,7 @@ def create_app():
     from app.auth import auth
     app.register_blueprint(auth)
 
+    from app.drawing import drawing
+    app.register_blueprint(drawing)
+
     return app

@@ -38,7 +38,7 @@ def register():
         db.session.commit()
 
         login_user(user)
-        return redirect(url_for("main.drawing_list"))
+        return redirect(url_for("drawing.drawing_list"))
 
     return render_template("register.html")
 
@@ -58,7 +58,7 @@ def login():
         login_user(user)
         # ログイン前にアクセスしようとしたページがあればそこへ、なければ図面一覧へ
         next_page = request.args.get("next")
-        return redirect(next_page or url_for("main.drawing_list"))
+        return redirect(next_page or url_for("drawing.drawing_list"))
 
     return render_template("login.html")
 
