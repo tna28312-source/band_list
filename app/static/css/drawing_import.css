@@ -99,6 +99,75 @@
   gap: 8px;
 }
 
+/* 上書き確認パネル */
+.overwrite-panel {
+  background: #fffbf0;
+  border: 1px solid #e6c84a;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+
+.overwrite-panel__header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.overwrite-panel__icon {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.overwrite-panel__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #7a5800;
+  margin-bottom: 6px;
+}
+
+.overwrite-panel__sub {
+  font-size: 13px;
+  color: #7a5800;
+  line-height: 1.7;
+}
+
+.overwrite-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 4px;
+}
+
+.overwrite-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: var(--text-primary, #333);
+}
+
+.overwrite-table th,
+.overwrite-table td {
+  padding: 8px 12px;
+  border: 1px solid #e0cfa0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.overwrite-table thead th {
+  background: #fdf3d0;
+  font-weight: 600;
+  color: #7a5800;
+}
+
+.overwrite-table tbody tr:hover {
+  background: #fffdf0;
+}
+
+.overwrite-table .col-check {
+  width: 40px;
+  text-align: center;
+}
+
 /* ボタンエリア */
 .import-actions {
   display: flex;

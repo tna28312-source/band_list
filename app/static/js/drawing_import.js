@@ -1,5 +1,6 @@
 /* ─── drawing_import.js ─────────────────────────── */
 
+// ── ファイルアップロード操作 ──────────────────────
 const dropZone    = document.getElementById('dropZone');
 const fileInput   = document.getElementById('excelFile');
 const btnSubmit   = document.getElementById('btnSubmit');
@@ -41,7 +42,6 @@ function onDrop(e) {
   onDragLeave(e);
   const file = e.dataTransfer.files[0];
   if (file) {
-    // DataTransferのファイルをinputにセット
     const dt = new DataTransfer();
     dt.items.add(file);
     fileInput.files = dt.files;
@@ -50,7 +50,28 @@ function onDrop(e) {
 }
 
 // 取り込み実行中はボタンをローディング表示（二重送信防止）
-document.getElementById('importForm').addEventListener('submit', () => {
-  btnSubmit.textContent = '取り込み中...';
-  btnSubmit.disabled = true;
-});
+const importForm = document.getElementById('importForm');
+if (importForm) {
+  importForm.addEventListener('submit', () => {
+    btnSubmit.textContent = '取り込み中...';
+    btnSubmit.disabled = true;
+  });
+}
+
+// ── 上書き確認テーブル操作 ───────────────────────
+
+// 「すべて選択」チェックボックス
+const checkAll = document.getElementById('checkAll');
+if (checkAll) {
+  checkAll.addEventListener('change', () => {
+    document.querySelectorAll('.overwrite-chk')
+      .forEach(cb => { cb.checked = checkAll.checked; });
+  });
+}
+
+// 「上書きせず完了」ボタン → チェックを全解除してサブミット
+function uncheckAll(e) {
+  document.querySelectorAll('.overwrite-chk')
+    .forEach(cb => { cb.checked = false; });
+  // submit はそのまま通す（e.preventDefault() しない）
+}

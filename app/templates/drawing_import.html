@@ -17,16 +17,19 @@
   <h1 class="page-title">Excel取り込み</h1>
 </div>
 
-<div class="card" style="max-width:600px; padding:32px 36px;">
+<div class="card" style="max-width:860px; padding:32px 36px;">
 
   {# ── 結果メッセージ ── #}
   {% if result %}
   <div class="import-result">
     <div class="import-result__title">✅ 取り込み完了</div>
     <div class="import-result__body">
-      登録件数：<strong>{{ result.imported }} 件</strong><br>
+      新規登録：<strong>{{ result.imported }} 件</strong><br>
+      {% if result.overwritten %}
+      上書き更新：<strong>{{ result.overwritten }} 件</strong><br>
+      {% endif %}
       スキップ件数：<strong>{{ result.skipped }} 件</strong>
-      <span class="import-result__note">（空行・重複は自動スキップ）</span>
+      <span class="import-result__note">（空行・納入済み重複は自動スキップ）</span>
     </div>
     <a href="{{ url_for('drawing.drawing_list') }}" class="import-result__btn">
       図面一覧へ戻る
@@ -39,15 +42,76 @@
   <div class="import-error">⚠️ {{ error }}</div>
   {% endif %}
 
-  {# ── アップロードフォーム ── #}
+  {# ── 上書き確認パネル ── #}
+  {% if pending %}
+  <div class="overwrite-panel">
+    <div class="overwrite-panel__header">
+      <span class="overwrite-panel__icon">⚠️</span>
+      <div>
+        <div class="overwrite-panel__title">上書き確認</div>
+        <div class="overwrite-panel__sub">
+          新規登録：<strong>{{ imported }} 件</strong>　
+          以下 <strong>{{ pending|length }} 件</strong> は登録済みですが納入日が未登録です。
+          上書きするレコードにチェックを入れてください。
+        </div>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('drawing.drawing_import') }}" id="overwriteForm">
+      <input type="hidden" name="action" value="overwrite_confirm">
+
+      <div class="overwrite-table-wrap">
+        <table class="overwrite-table">
+          <thead>
+            <tr>
+              <th class="col-check">
+                <input type="checkbox" id="checkAll" title="すべて選択">
+              </th>
+              <th>工事番号</th>
+              <th>図面番号</th>
+              <th>発注先</th>
+              <th>発注日</th>
+              <th>納期</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in pending %}
+            <tr>
+              <td class="col-check">
+                <input type="checkbox" name="overwrite_ids"
+                       value="{{ item.drawing_id }}" class="overwrite-chk">
+              </td>
+              <td>{{ item.project_no }}</td>
+              <td>{{ item.drawing_no }}</td>
+              <td>{{ item.vendor or '―' }}</td>
+              <td>{{ item.order_date or '―' }}</td>
+              <td>{{ item.due_date   or '―' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="import-actions" style="margin-top:20px;">
+        <button type="submit" class="btn-photo">選択した件を上書きして完了</button>
+        <button type="submit" id="btnSkipAll" class="btn-new"
+                onclick="uncheckAll(event)">上書きせず完了</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  {# ── アップロードフォーム（pending がないときだけ表示） ── #}
+  {% if not pending and not result %}
   <form method="POST" enctype="multipart/form-data"
         action="{{ url_for('drawing.drawing_import') }}"
         id="importForm">
 
     <p class="import-description">
       1行目をヘッダーとして読み込みます。<br>
-      <strong>「工事番号」「図面番号」</strong>の列が含まれていれば取り込めます。<br>
-      既に登録済みの組み合わせは自動的にスキップされます。
+      <strong>「工事番号」「図面番号」</strong>の列は必須です。<br>
+      <strong>「発注先」「発注日」「納期」</strong>の列があれば一緒に取り込みます。<br>
+      納入日が登録済みのデータは自動スキップ。未登録の場合は上書き確認します。
     </p>
 
     {# ドロップゾーン #}
@@ -83,6 +147,7 @@
     </div>
 
   </form>
+  {% endif %}
 </div>
 {% endblock %}
 

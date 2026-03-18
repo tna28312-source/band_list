@@ -1,0 +1,33 @@
+{# ============================================================
+   drawing_list.html への変更点（差分のみ）
+   ============================================================
+
+   【変更① extra_js ブロックにfilter.jsを追加】
+   既存の drawing_list.js の後ろに1行追加するだけ。
+   ============================================================ #}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/drawing_list.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/drawing_list_filter.js') }}"></script>
+{% endblock %}
+
+
+{# ============================================================
+   【変更② CSSをbase.htmlまたはdrawing_list.htmlのheadで読み込む】
+
+   base.html の <head> に追加：
+     <link rel="stylesheet" href="{{ url_for('static', filename='css/drawing_list.css') }}">
+
+   もしくは drawing_list.html に extra_css ブロックがあれば：
+     {% block extra_css %}
+       <link rel="stylesheet" href="{{ url_for('static', filename='css/filter_addition.css') }}">
+     {% endblock %}
+
+   ============================================================
+
+   【HTMLテーブル部分の変更はゼロ】
+   <thead> の <th> タグを変更する必要は一切なし。
+   JSの initHeaders() が自動でクラス付与・▼アイコン挿入・
+   イベント登録をすべて行う。
+
+   ============================================================ #}

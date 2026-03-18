@@ -97,16 +97,63 @@ def drawing_import():
     COLUMN_MAP = {
         "工事番号": "project_no",
         "図面番号": "drawing_no",
-    }
-    DEFAULTS = {
-        "vendor":     "",
-        "order_date": date.today(),
-        "due_date":   date.today(),
+        "発注先":   "vendor",
+        "発注日":   "order_date",
+        "納期":     "due_date",
     }
 
+    def parse_date(val):
+        """セルの値を date 型に変換。失敗時は None を返す。"""
+        if val is None:
+            return None
+        if isinstance(val, (date, datetime)):
+            return val.date() if isinstance(val, datetime) else val
+        s = str(val).strip()
+        for fmt in ("%Y/%m/%d", "%Y-%m-%d", "%Y年%m月%d日"):
+            try:
+                return datetime.strptime(s, fmt).date()
+            except ValueError:
+                continue
+        return None
+
+    # ── GET：通常表示 ──────────────────────────────
     if request.method == "GET":
         return render_template("drawing_import.html")
 
+    # ── POST：上書き確定（確認画面からの送信） ──────
+    if request.form.get("action") == "overwrite_confirm":
+        try:
+            pending = session.pop("import_pending", [])
+            overwrite_ids = set(request.form.getlist("overwrite_ids"))
+            overwritten = 0
+            for item in pending:
+                if str(item["drawing_id"]) not in overwrite_ids:
+                    continue
+                d = Drawing.query.get(item["drawing_id"])
+                if d:
+                    d.project_no = item["project_no"]
+                    d.drawing_no = item["drawing_no"]
+                    d.vendor     = item["vendor"]
+                    if item["order_date"]:
+                        d.order_date = date.fromisoformat(item["order_date"])
+                    if item["due_date"]:
+                        d.due_date = date.fromisoformat(item["due_date"])
+                    overwritten += 1
+            db.session.commit()
+            imported_count = session.pop("import_imported", 0)
+            skipped_count  = session.pop("import_skipped", 0)
+            return render_template("drawing_import.html",
+                                   result={
+                                       "imported":    imported_count,
+                                       "skipped":     skipped_count,
+                                       "overwritten": overwritten,
+                                   })
+        except Exception as e:
+            db.session.rollback()
+            return render_template("drawing_import.html",
+                                   error=f"上書き処理中にエラーが発生しました: {str(e)}")
+
+    # ── POST：Excelファイルの新規読み込み ───────────
     file = request.files.get("excel_file")
     if not file or not file.filename.endswith((".xlsx", ".xls")):
         return render_template("drawing_import.html",
@@ -124,50 +171,92 @@ def drawing_import():
             if excel_col in headers:
                 col_index[model_attr] = headers.index(excel_col)
 
-        if not col_index:
+        if "project_no" not in col_index and "drawing_no" not in col_index:
             return render_template("drawing_import.html",
                                    error="「工事番号」「図面番号」いずれのヘッダーも見つかりませんでした。"
                                          "1行目にヘッダーが記載されているか確認してください。")
 
-        imported = 0
-        skipped  = 0
+        imported  = 0
+        skipped   = 0
+        pending   = []   # 上書き候補（納入日未登録の既存レコード）
 
-        for row_num, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+        for row in ws.iter_rows(min_row=2, values_only=True):
             if all(v is None or str(v).strip() == "" for v in row):
                 continue
 
-            project_no = str(row[col_index["project_no"]]).strip() \
-                         if "project_no" in col_index else ""
-            drawing_no = str(row[col_index["drawing_no"]]).strip() \
-                         if "drawing_no" in col_index else ""
+            def cell(attr):
+                idx = col_index.get(attr)
+                if idx is None:
+                    return None
+                v = row[idx]
+                return str(v).strip() if v is not None else ""
+
+            project_no = cell("project_no") or ""
+            drawing_no = cell("drawing_no") or ""
 
             if not project_no and not drawing_no:
                 skipped += 1
                 continue
+
+            vendor     = cell("vendor") or ""
+            order_date = parse_date(row[col_index["order_date"]]) \
+                         if "order_date" in col_index else date.today()
+            due_date   = parse_date(row[col_index["due_date"]]) \
+                         if "due_date" in col_index else date.today()
 
             exists = Drawing.query.filter_by(
                 project_no=project_no,
                 drawing_no=drawing_no,
                 is_deleted=False,
             ).first()
+
             if exists:
-                skipped += 1
+                # 納入日が登録済み → 完全スキップ
+                has_delivery = (
+                    exists.delivery is not None
+                    and exists.delivery.delivered_at is not None
+                )
+                if has_delivery:
+                    skipped += 1
+                else:
+                    # 納入日未登録 → 上書き候補に追加
+                    pending.append({
+                        "drawing_id": exists.id,
+                        "project_no": project_no,
+                        "drawing_no": drawing_no,
+                        "vendor":     vendor,
+                        "order_date": order_date.isoformat() if order_date else None,
+                        "due_date":   due_date.isoformat()   if due_date   else None,
+                    })
                 continue
 
+            # 新規登録
             drawing_obj = Drawing(
                 project_no = project_no,
                 drawing_no = drawing_no,
-                vendor     = DEFAULTS["vendor"],
-                order_date = DEFAULTS["order_date"],
-                due_date   = DEFAULTS["due_date"],
+                vendor     = vendor,
+                order_date = order_date or date.today(),
+                due_date   = due_date   or date.today(),
                 created_by = current_user.id,
             )
             db.session.add(drawing_obj)
             imported += 1
 
         db.session.commit()
+
+        # 上書き候補がある → 確認画面へ
+        if pending:
+            session["import_pending"]  = pending
+            session["import_imported"] = imported
+            session["import_skipped"]  = skipped
+            return render_template("drawing_import.html",
+                                   pending=pending,
+                                   imported=imported,
+                                   skipped=skipped)
+
         return render_template("drawing_import.html",
-                               result={"imported": imported, "skipped": skipped})
+                               result={"imported": imported, "skipped": skipped,
+                                       "overwritten": 0})
 
     except Exception as e:
         db.session.rollback()
