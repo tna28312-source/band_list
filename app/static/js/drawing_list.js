@@ -118,8 +118,10 @@ document.addEventListener('keydown', e => {
     cardEl  = document.querySelector('.card');
     if (!tableEl || !cardEl) return;
 
-    // スクロールイベントを監視
+    // 縦スクロール（ページ全体）を監視
     window.addEventListener('scroll', onScroll, { passive: true });
+    // 横スクロール（.card 内）を監視して固定ヘッダーの位置を同期
+    cardEl.addEventListener('scroll', syncColumnWidths, { passive: true });
     onScroll(); // 初回チェック
   }
 
@@ -194,10 +196,15 @@ document.addEventListener('keydown', e => {
     const fixedTable = clonedThead._fixedTable;
     if (!fixedTable) return;
 
-    // .card の位置・幅を再取得（横スクロール対応）
+    // .card の位置・幅を再取得
     const cardRect = cardEl.getBoundingClientRect();
-    fixedTable.style.left  = cardRect.left + 'px';
-    fixedTable.style.width = cardEl.offsetWidth + 'px';
+    // 横スクロール量を引いて固定ヘッダーをテーブルに追従させる
+    fixedTable.style.left      = cardRect.left + 'px';
+    fixedTable.style.width     = cardEl.offsetWidth + 'px';
+    fixedTable.style.overflowX = 'hidden';
+    // テーブル本体の横スクロール位置に合わせてクローンをずらす
+    const scrollLeft = cardEl.scrollLeft;
+    fixedTable.querySelector('thead').style.transform = 'translateX(-' + scrollLeft + 'px)';
 
     // 元の th と固定 th の幅を合わせる
     const origThs  = tableEl.querySelectorAll('thead th');
