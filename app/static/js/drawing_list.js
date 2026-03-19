@@ -162,7 +162,7 @@ document.addEventListener('keydown', e => {
       'position:fixed',
       'top:0',
       'left:' + cardEl.getBoundingClientRect().left + 'px',
-      'width:' + cardEl.offsetWidth + 'px',
+      'width:' + cardEl.getBoundingClientRect().width + 'px',
       'z-index:50',
       'margin:0',
       'border-collapse:collapse',
@@ -200,7 +200,7 @@ document.addEventListener('keydown', e => {
     const cardRect = cardEl.getBoundingClientRect();
     // 横スクロール量を引いて固定ヘッダーをテーブルに追従させる
     fixedTable.style.left      = cardRect.left + 'px';
-    fixedTable.style.width     = cardEl.offsetWidth + 'px';
+    fixedTable.style.width     = cardRect.width + 'px';
     fixedTable.style.overflowX = 'hidden';
     // テーブル本体の横スクロール位置に合わせてクローンをずらす
     const scrollLeft = cardEl.scrollLeft;
@@ -211,8 +211,9 @@ document.addEventListener('keydown', e => {
     const cloneThs = clonedThead.querySelectorAll('th');
     origThs.forEach(function (th, i) {
       if (cloneThs[i]) {
-        cloneThs[i].style.width    = th.offsetWidth + 'px';
-        cloneThs[i].style.minWidth = th.offsetWidth + 'px';
+        var thW = th.getBoundingClientRect().width;
+        cloneThs[i].style.width    = thW + 'px';
+        cloneThs[i].style.minWidth = thW + 'px';
       }
     });
   }
