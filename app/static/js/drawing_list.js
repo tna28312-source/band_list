@@ -102,3 +102,116 @@ function closePhotoModal() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closePhotoModal();
 });
+// ─── スクロール時にテーブルヘッダーを固定 ────────────
+(function () {
+  // ページ読み込み後に実行
+  window.addEventListener('load', initStickyHeader);
+  // リサイズ時も再計算
+  window.addEventListener('resize', resetStickyHeader);
+
+  let clonedThead = null;   // 固定用のクローン要素
+  let tableEl     = null;   // 元のtable要素
+  let cardEl      = null;   // .card要素
+
+  function initStickyHeader() {
+    tableEl = document.querySelector('.card table');
+    cardEl  = document.querySelector('.card');
+    if (!tableEl || !cardEl) return;
+
+    // スクロールイベントを監視
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // 初回チェック
+  }
+
+  function onScroll() {
+    if (!tableEl || !cardEl) return;
+
+    const cardRect  = cardEl.getBoundingClientRect();
+    const theadEl   = tableEl.querySelector('thead');
+    const theadH    = theadEl ? theadEl.offsetHeight : 0;
+    const cardBottom = cardRect.bottom;
+
+    // カードの上端が画面上端より上にいったら固定ヘッダーを表示
+    // カードの下端がヘッダーの高さより小さくなったら非表示（テーブル末端）
+    const shouldFix = cardRect.top < 0 && cardBottom > theadH;
+
+    if (shouldFix) {
+      showFixedHeader();
+    } else {
+      hideFixedHeader();
+    }
+  }
+
+  function showFixedHeader() {
+    if (clonedThead) {
+      // すでに表示中 → 幅だけ同期
+      syncColumnWidths();
+      return;
+    }
+
+    const theadEl = tableEl.querySelector('thead');
+    if (!theadEl) return;
+
+    // クローンテーブルを作る（元のtableと同じ構造）
+    const fixedTable = document.createElement('table');
+    fixedTable.className = tableEl.className;
+    // 元テーブルのcolumn幅をコピーするためのcolgroupを作成
+    fixedTable.style.cssText = [
+      'position:fixed',
+      'top:0',
+      'left:' + cardEl.getBoundingClientRect().left + 'px',
+      'width:' + cardEl.offsetWidth + 'px',
+      'z-index:50',
+      'margin:0',
+      'border-collapse:collapse',
+      'background:transparent',
+      'pointer-events:none',
+    ].join(';');
+
+    clonedThead = theadEl.cloneNode(true);
+    // クローン内のチェックボックスは操作不可にする（pointer-events:none なので影響ないが念のため）
+    fixedTable.appendChild(clonedThead);
+    document.body.appendChild(fixedTable);
+
+    // 列幅を元テーブルに合わせる
+    syncColumnWidths();
+
+    // 固定ヘッダーのラッパーを保持
+    clonedThead._fixedTable = fixedTable;
+  }
+
+  function hideFixedHeader() {
+    if (!clonedThead) return;
+    if (clonedThead._fixedTable) {
+      clonedThead._fixedTable.remove();
+    }
+    clonedThead = null;
+  }
+
+  function syncColumnWidths() {
+    if (!clonedThead) return;
+
+    const fixedTable = clonedThead._fixedTable;
+    if (!fixedTable) return;
+
+    // .card の位置・幅を再取得（横スクロール対応）
+    const cardRect = cardEl.getBoundingClientRect();
+    fixedTable.style.left  = cardRect.left + 'px';
+    fixedTable.style.width = cardEl.offsetWidth + 'px';
+
+    // 元の th と固定 th の幅を合わせる
+    const origThs  = tableEl.querySelectorAll('thead th');
+    const cloneThs = clonedThead.querySelectorAll('th');
+    origThs.forEach(function (th, i) {
+      if (cloneThs[i]) {
+        cloneThs[i].style.width    = th.offsetWidth + 'px';
+        cloneThs[i].style.minWidth = th.offsetWidth + 'px';
+      }
+    });
+  }
+
+  function resetStickyHeader() {
+    hideFixedHeader();
+    onScroll();
+  }
+})();
